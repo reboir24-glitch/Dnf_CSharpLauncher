@@ -1032,50 +1032,6 @@ namespace DFOLauncher
             }
         }
 
-        private async void TransferCharBtn_Click(object sender, RoutedEventArgs e)
-        {
-            var selected = CharacterList.SelectedItem as Character;
-            if (selected == null)
-            {
-                SetStatus("Select a character first", (Brush)FindResource("WarningBrush"));
-                return;
-            }
-
-            if (!int.TryParse(TransferAccountBox.Text, out int targetAccountId) || targetAccountId <= 0)
-            {
-                SetStatus("Enter a valid account ID", (Brush)FindResource("WarningBrush"));
-                return;
-            }
-
-            try
-            {
-                await Task.Run(() => TransferCharacter(selected.Id, targetAccountId));
-                Dispatcher.Invoke(() =>
-                {
-                    SetStatus($"Transferred {selected.Name} to account {targetAccountId}", (Brush)FindResource("SuccessBrush"));
-                    RefreshData();
-                });
-            }
-            catch (Exception ex)
-            {
-                Dispatcher.Invoke(() => SetStatus("Error: " + ex.Message, (Brush)FindResource("ErrorBrush")));
-            }
-        }
-
-        private void TransferCharacter(int charId, int targetAccountId)
-        {
-            var connStr = $"Server={DB_HOST};Port={DB_PORT};ConvertZeroDateTime=True;Database=taiwan_cain;Uid={DB_USER};Pwd={DB_PASS};";
-            using (var conn = new MySqlConnection(connStr))
-            {
-                conn.Open();
-                using (var cmd = new MySqlCommand("UPDATE charac_info SET m_id = @targetId WHERE charac_no = @charId", conn))
-                {
-                    cmd.Parameters.AddWithValue("@targetId", targetAccountId);
-                    cmd.Parameters.AddWithValue("@charId", charId);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-        }
         #endregion
 
         #region Helpers

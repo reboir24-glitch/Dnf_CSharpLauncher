@@ -648,29 +648,6 @@
                                     </Grid>
                                 </Border>
 
-                                <!-- Quick Actions -->
-                                <Border Grid.Row="2" Background="#15000000" CornerRadius="8" Padding="10" Margin="0,0,0,8">
-                                    <StackPanel>
-                                        <TextBlock Text="QUICK ACTIONS" FontSize="9" Foreground="#6b7280" Margin="0,0,0,6"/>
-                                        <Button Content="👑 Set VIP" Height="28"
-                                                Background="#1f2937" Foreground="#FBBF24" BorderThickness="0"
-                                                FontSize="10" Cursor="Hand" Click="SetVIPBtn_Click" ToolTip="Set VIP Status">
-                                            <Button.Template>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="vb" Background="{TemplateBinding Background}" CornerRadius="5">
-                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="vb" Property="Background" Value="#2a3545"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Button.Template>
-                                        </Button>
-                                    </StackPanel>
-                                </Border>
-
                                 <!-- Gold Packages & Tools -->
                                 <Border Grid.Row="3" Background="#15000000" CornerRadius="8" Padding="10">
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -780,32 +757,6 @@
                                                             <ControlTemplate.Triggers>
                                                                 <Trigger Property="IsMouseOver" Value="True">
                                                                     <Setter TargetName="sib" Property="Background" Value="#10B981"/>
-                                                                </Trigger>
-                                                            </ControlTemplate.Triggers>
-                                                        </ControlTemplate>
-                                                    </Button.Template>
-                                                </Button>
-                                            </Grid>
-
-                                            <!-- Transfer Character -->
-                                            <TextBlock Text="TRANSFER CHARACTER" FontSize="9" Foreground="#6b7280" Margin="0,5,0,4"/>
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <TextBox x:Name="TransferAccountBox" Style="{StaticResource ModernTextBox}" Height="28"/>
-                                                <Button Grid.Column="1" Content="🔄" Width="35" Height="28" Margin="5,0,0,0"
-                                                        Background="#8B5CF6" Foreground="White" BorderThickness="0"
-                                                        FontSize="12" Cursor="Hand" Click="TransferCharBtn_Click" ToolTip="Transfer to Account ID">
-                                                    <Button.Template>
-                                                        <ControlTemplate TargetType="Button">
-                                                            <Border x:Name="tcb" Background="{TemplateBinding Background}" CornerRadius="5">
-                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                            </Border>
-                                                            <ControlTemplate.Triggers>
-                                                                <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Setter TargetName="tcb" Property="Background" Value="#A78BFA"/>
                                                                 </Trigger>
                                                             </ControlTemplate.Triggers>
                                                         </ControlTemplate>
