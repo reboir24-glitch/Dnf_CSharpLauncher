@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>DFOLauncher</AssemblyName>
+    <RootNamespace>DFOLauncher</RootNamespace>
+    <LangVersion>7.3</LangVersion>
+    <ApplicationIcon>assets\DFO.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Costura.Fody" Version="5.7.0" PrivateAssets="All" />
+    <PackageReference Include="MySqlConnector" Version="2.3.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="assets\Neo_blade.png" />
+    <Resource Include="assets\jade.png" />
+    <Resource Include="assets\Berserker.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="dbconfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>
