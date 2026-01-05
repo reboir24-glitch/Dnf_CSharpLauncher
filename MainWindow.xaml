@@ -635,11 +635,6 @@
                                                 <TextBlock x:Name="StatFatigue" Text="0/156" FontSize="14" Foreground="#10B981" FontWeight="SemiBold"/>
                                             </StackPanel>
                                         </StackPanel>
-                                        <!-- VIP -->
-                                        <StackPanel Grid.Row="2" Grid.Column="1" Margin="8,0,0,8">
-                                            <TextBlock Text="VIP STATUS" FontSize="9" Foreground="#6b7280"/>
-                                            <TextBlock x:Name="StatVIP" Text="None" FontSize="14" Foreground="#FBBF24" FontWeight="SemiBold"/>
-                                        </StackPanel>
                                         <!-- Last Played -->
                                         <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
                                             <TextBlock Text="LAST PLAYED" FontSize="9" Foreground="#6b7280"/>

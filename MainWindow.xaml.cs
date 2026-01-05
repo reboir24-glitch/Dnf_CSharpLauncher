@@ -407,21 +407,51 @@ namespace DFOLauncher
             // Get Characters
             var characters = new List<Character>();
             var charConnStr = $"Server={DB_HOST};Port={DB_PORT};ConvertZeroDateTime=True;Database=taiwan_cain;Uid={DB_USER};Pwd={DB_PASS};";
+
             using (var conn = new MySqlConnection(charConnStr))
             {
                 conn.Open();
-                var sql = @"SELECT c.charac_no, c.charac_name, c.lev, c.job, c.maxHP, c.maxMP,
-                            c.phy_attack, c.mag_attack, c.fatigue, c.max_fatigue, c.VIP, c.last_play_time, i.money
-                            FROM charac_info c
-                            LEFT JOIN taiwan_cain_2nd.inventory i ON c.charac_no = i.charac_no
-                            WHERE c.m_id = @uid AND c.delete_flag = 0";
+
+                var sql = @"
+SELECT 
+    c.charac_no,
+    c.charac_name,
+    c.lev,
+    c.job,
+    c.maxHP,
+    c.maxMP,
+    c.phy_attack,
+    c.mag_attack,
+
+    -- max fatigue from charac_info
+    (c.max_fatigue + IFNULL(c.max_premium_fatigue, 0)) AS total_max_fatigue,
+
+    -- used fatigue ONLY from charac_stat
+    (IFNULL(s.used_fatigue, 0) + IFNULL(s.premium_fatigue, 0)) AS used_fatigue,
+
+    -- last play time from charac_stat
+    s.last_play_time,
+
+    i.money
+FROM charac_info c
+LEFT JOIN taiwan_cain_2nd.inventory i
+    ON c.charac_no = i.charac_no
+LEFT JOIN charac_stat s
+    ON c.charac_no = s.charac_no
+WHERE c.m_id = @uid
+  AND c.delete_flag = 0";
+
                 using (var cmd = new MySqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("@uid", uid);
+
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
+                            short maxFatigue = reader.GetInt16("total_max_fatigue");
+                            short usedFatigue = reader.GetInt16("used_fatigue");
+
                             characters.Add(new Character
                             {
                                 Id = reader.GetInt32("charac_no"),
@@ -433,15 +463,20 @@ namespace DFOLauncher
                                 MaxMP = reader.GetInt32("maxMP"),
                                 PhyAttack = reader.GetInt32("phy_attack"),
                                 MagAttack = reader.GetInt32("mag_attack"),
-                                Fatigue = reader.GetInt16("fatigue"),
-                                MaxFatigue = reader.GetInt16("max_fatigue"),
-                                VIP = reader.IsDBNull(reader.GetOrdinal("VIP")) ? "" : reader.GetString("VIP"),
-                                LastPlayTime = reader.IsDBNull(reader.GetOrdinal("last_play_time")) ? DateTime.MinValue : reader.GetDateTime("last_play_time")
+
+                                MaxFatigue = maxFatigue,
+                                Fatigue = (short)Math.Max(0, maxFatigue - usedFatigue),
+
+                                LastPlayTime = reader.IsDBNull(reader.GetOrdinal("last_play_time"))
+                                    ? DateTime.MinValue
+                                    : reader.GetDateTime("last_play_time")
                             });
                         }
                     }
                 }
             }
+
+
 
             var token = GenerateLoginToken(uid);
 
@@ -552,7 +587,6 @@ namespace DFOLauncher
                 StatPhyAtk.Text = "0";
                 StatMagAtk.Text = "0";
                 StatFatigue.Text = "0/156";
-                StatVIP.Text = "None";
                 StatLastPlayed.Text = "Never";
                 return;
             }
@@ -562,7 +596,6 @@ namespace DFOLauncher
             StatPhyAtk.Text = $"{selected.PhyAttack:N0}";
             StatMagAtk.Text = $"{selected.MagAttack:N0}";
             StatFatigue.Text = $"{selected.Fatigue}/{selected.MaxFatigue}";
-            StatVIP.Text = string.IsNullOrEmpty(selected.VIP) ? "None" : selected.VIP;
             StatLastPlayed.Text = selected.LastPlayTime == DateTime.MinValue ? "Never" : selected.LastPlayTime.ToString("yyyy-MM-dd HH:mm");
             LevelBox.Text = selected.Level.ToString();
         }
@@ -1173,7 +1206,6 @@ Cx4uIecQ9jQLOQIOYL8XvSDCQAj8ZllGw5pu1gyzLMH/FCn//fz96+fF9xw5HNwD
         public int MagAttack { get; set; }
         public int Fatigue { get; set; }
         public int MaxFatigue { get; set; }
-        public string VIP { get; set; }
         public DateTime LastPlayTime { get; set; }
 
         public string LevelDisplay => $"Lv.{Level}";
