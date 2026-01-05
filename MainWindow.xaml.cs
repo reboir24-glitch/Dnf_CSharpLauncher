@@ -1,3 +1,12 @@
+using Microsoft.Win32;
+using MySqlConnector;
+using Newtonsoft.Json;
+using Org.BouncyCastle.Bcpg.Sig;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Math;
+using Org.BouncyCastle.OpenSsl;
+using Org.BouncyCastle.Security;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,14 +21,6 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using Microsoft.Win32;
-using MySqlConnector;
-using Newtonsoft.Json;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.OpenSsl;
-using Org.BouncyCastle.Security;
 
 namespace DFOLauncher
 {
@@ -868,21 +869,146 @@ WHERE c.m_id = @uid
                 Dispatcher.Invoke(() => SetStatus("Error: " + ex.Message, (Brush)FindResource("ErrorBrush")));
             }
         }
+        private static readonly long[] ExpTable =
+{
+    1000,
+    2653,
+    5543,
+    10575,
+    18509,
+    30205,
+    46627,
+    68840,
+    98012,
+    135412,
+    182411,
+    240483,
+    311203,
+    396249,
+    497399,
+    619844,
+    767003,
+    942667,
+    1150141,
+    1393864,
+    1677655,
+    2016592,
+    2419616,
+    2881880,
+    3410208,
+    4010357,
+    4690036,
+    5457538,
+    6319795,
+    7286075,
+    8364071,
+    9564081,
+    10897068,
+    12372076,
+    14001186,
+    15794305,
+    17764684,
+    19926329,
+    22290671,
+    24872971,
+    27685628,
+    30844672,
+    34385491,
+    38223728,
+    42379527,
+    46869144,
+    51714280,
+    56937632,
+    62557467,
+    68598134,
+    75079161,
+    82244762,
+    90154153,
+    98612376,
+    107650320,
+    117292652,
+    127572249,
+    138523258,
+    150172894,
+    162557394,
+    175705561,
+    190075639,
+    205759433,
+    222370655,
+    239953967,
+    258544759,
+    278190155,
+    298938852,
+    320829378,
+    343912998,
+    368230186,
+    394571074,
+    423070174,
+    453854220,
+    487070095,
+    522855717,
+    561371046,
+    602783706,
+    647250436,
+    694953116,
+    746061309,
+    801975949,
+    863016468,
+    929492724,
+    1001752659,
+    1080132233,
+    1165009430,
+    1256779605,
+    1355822224,
+    1462565224,
+    1577417727,
+    1700841882,
+    1833319630,
+    1975309387,
+    2127330010,
+    -2005093948,
+    -1831470394,
+    -1646186759,
+    -1448695754
+};
+
 
         private void SetLevel(int charId, int level)
         {
+            if (level < 1 || level > ExpTable.Length)
+                throw new ArgumentOutOfRangeException(nameof(level), "Invalid level");
+
+            long exp = (level <= 1) ? 0 : ExpTable[level - 2];
+
             var connStr = $"Server={DB_HOST};Port={DB_PORT};ConvertZeroDateTime=True;Database=taiwan_cain;Uid={DB_USER};Pwd={DB_PASS};";
+
             using (var conn = new MySqlConnection(connStr))
             {
                 conn.Open();
-                using (var cmd = new MySqlCommand("UPDATE charac_info SET lev = @lev WHERE charac_no = @id", conn))
+                using (var tx = conn.BeginTransaction())
                 {
-                    cmd.Parameters.AddWithValue("@lev", level);
-                    cmd.Parameters.AddWithValue("@id", charId);
-                    cmd.ExecuteNonQuery();
+                    using (var cmd = new MySqlCommand(
+                        "UPDATE charac_info SET lev = @lev WHERE charac_no = @id", conn, tx))
+                    {
+                        cmd.Parameters.AddWithValue("@lev", level);
+                        cmd.Parameters.AddWithValue("@id", charId);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    using (var cmd = new MySqlCommand(
+                        "UPDATE charac_stat SET exp = @exp WHERE charac_no = @id", conn, tx))
+                    {
+                        cmd.Parameters.AddWithValue("@exp", exp);
+                        cmd.Parameters.AddWithValue("@id", charId);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    tx.Commit();
                 }
             }
         }
+
+
 
         private void SetMaxLevel(int charId)
         {
