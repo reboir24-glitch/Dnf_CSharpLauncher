@@ -499,50 +499,69 @@ WHERE c.m_id = @uid
             {
                 conn.Open();
 
-                // Insert into accounts table
-                try
+                // FIX: prevent duplicate usernames without DB changes
+                using (var checkCmd = new MySqlCommand(
+                    "SELECT 1 FROM accounts WHERE accountname = @user LIMIT 1", conn))
                 {
-                    using (var cmd = new MySqlCommand("INSERT INTO accounts (accountname, password, qq) VALUES (@user, @pass, @qq)", conn))
+                    checkCmd.Parameters.AddWithValue("@user", username);
+                    if (checkCmd.ExecuteScalar() != null)
+                        throw new Exception("Account name already exists!");
+                }
+
+                using (var tx = conn.BeginTransaction())
+                {
+                    try
                     {
-                        cmd.Parameters.AddWithValue("@user", username);
-                        cmd.Parameters.AddWithValue("@pass", hashedPassword);
-                        cmd.Parameters.AddWithValue("@qq", password);
-                        cmd.ExecuteNonQuery();
+                        // Insert into accounts table
+                        using (var cmd = new MySqlCommand(
+                            "INSERT INTO accounts (accountname, password, qq) VALUES (@user, @pass, @qq)", conn, tx))
+                        {
+                            cmd.Parameters.AddWithValue("@user", username);
+                            cmd.Parameters.AddWithValue("@pass", hashedPassword);
+                            cmd.Parameters.AddWithValue("@qq", password);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        // Get UID
+                        using (var cmd = new MySqlCommand(
+                            "SELECT uid FROM accounts WHERE accountname = @user", conn, tx))
+                        {
+                            cmd.Parameters.AddWithValue("@user", username);
+                            var result = cmd.ExecuteScalar();
+                            if (result == null)
+                                throw new Exception("Failed to get account UID");
+                            uid = Convert.ToInt32(result);
+                        }
+
+                        using (var cmd = new MySqlCommand(
+                            "INSERT IGNORE INTO limit_create_character (m_id) VALUES (@uid)", conn, tx))
+                        {
+                            cmd.Parameters.AddWithValue("@uid", uid);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        using (var cmd = new MySqlCommand(
+                            "INSERT IGNORE INTO member_info (m_id, user_id) VALUES (@uid, @userid)", conn, tx))
+                        {
+                            cmd.Parameters.AddWithValue("@uid", uid);
+                            cmd.Parameters.AddWithValue("@userid", uid.ToString());
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        using (var cmd = new MySqlCommand(
+                            "INSERT IGNORE INTO member_white_account (m_id) VALUES (@uid)", conn, tx))
+                        {
+                            cmd.Parameters.AddWithValue("@uid", uid);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        tx.Commit();
                     }
-                }
-                catch (MySqlException ex) when (ex.Number == 1062)
-                {
-                    throw new Exception("Account name already exists!");
-                }
-
-                // Get the new UID
-                using (var cmd = new MySqlCommand("SELECT uid FROM accounts WHERE accountname = @user", conn))
-                {
-                    cmd.Parameters.AddWithValue("@user", username);
-                    var result = cmd.ExecuteScalar();
-                    if (result == null)
-                        throw new Exception("Failed to get account UID");
-                    uid = Convert.ToInt32(result);
-                }
-
-                // Insert into related tables (use IGNORE to prevent duplicate errors)
-                using (var cmd = new MySqlCommand("INSERT IGNORE INTO limit_create_character (m_id) VALUES (@uid)", conn))
-                {
-                    cmd.Parameters.AddWithValue("@uid", uid);
-                    cmd.ExecuteNonQuery();
-                }
-
-                using (var cmd = new MySqlCommand("INSERT IGNORE INTO member_info (m_id, user_id) VALUES (@uid, @userid)", conn))
-                {
-                    cmd.Parameters.AddWithValue("@uid", uid);
-                    cmd.Parameters.AddWithValue("@userid", uid.ToString());
-                    cmd.ExecuteNonQuery();
-                }
-
-                using (var cmd = new MySqlCommand("INSERT IGNORE INTO member_white_account (m_id) VALUES (@uid)", conn))
-                {
-                    cmd.Parameters.AddWithValue("@uid", uid);
-                    cmd.ExecuteNonQuery();
+                    catch
+                    {
+                        tx.Rollback();
+                        throw;
+                    }
                 }
             }
 
@@ -551,7 +570,8 @@ WHERE c.m_id = @uid
             using (var loginConn = new MySqlConnection(loginConnStr))
             {
                 loginConn.Open();
-                using (var cmd = new MySqlCommand("INSERT IGNORE INTO member_login (m_id) VALUES (@uid)", loginConn))
+                using (var cmd = new MySqlCommand(
+                    "INSERT IGNORE INTO member_login (m_id) VALUES (@uid)", loginConn))
                 {
                     cmd.Parameters.AddWithValue("@uid", uid);
                     cmd.ExecuteNonQuery();
@@ -559,6 +579,7 @@ WHERE c.m_id = @uid
             }
         }
         #endregion
+
 
         #region Dashboard
         private void UpdateDashboard()
