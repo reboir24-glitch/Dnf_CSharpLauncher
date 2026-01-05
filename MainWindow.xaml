@@ -167,7 +167,7 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Left Panel - Login Form with Glassmorphism -->
-                        <Border Grid.Column="0" Margin="40,50,20,85" Style="{StaticResource GlassPanel}">
+                        <Border Grid.Column="0" Margin="329,68,329,67" Style="{StaticResource GlassPanel}" Grid.ColumnSpan="2">
                             <StackPanel Margin="30,25,30,25" VerticalAlignment="Center">
                                 <!-- Animated Logo -->
                                 <TextBlock x:Name="LogoText" Text="DFO" FontSize="42" FontWeight="Bold" Foreground="White" Margin="0,0,0,-5">
@@ -325,52 +325,6 @@
                         </Border>
 
                         <!-- Right Panel - News Section with Glassmorphism -->
-                        <Border Grid.Column="1" Margin="20,50,40,85" Style="{StaticResource GlassPanel}" HorizontalAlignment="Left" Width="340">
-                            <Grid Margin="25,20,25,20">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-
-                                <!-- News Header -->
-                                <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,15">
-                                    <TextBlock Text="&#x1F4E2;" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="NEWS &amp; ANNOUNCEMENTS" FontSize="12" Foreground="#DC2626"
-                                               FontWeight="Bold" VerticalAlignment="Center"/>
-                                </StackPanel>
-
-                                <!-- News Items -->
-                                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                                    <StackPanel x:Name="NewsPanel">
-                                        <!-- News items will be added here -->
-                                        <Border Background="#15ffffff" CornerRadius="8" Padding="15" Margin="0,0,0,10">
-                                            <StackPanel>
-                                                <TextBlock Text="Welcome to DFO!" FontSize="14" Foreground="White" FontWeight="SemiBold"/>
-                                                <TextBlock Text="Your adventure begins now. Login to start playing!"
-                                                           FontSize="12" Foreground="#94A3B8" Margin="0,5,0,0" TextWrapping="Wrap"/>
-                                                <TextBlock Text="Today" FontSize="10" Foreground="#6b7280" Margin="0,8,0,0"/>
-                                            </StackPanel>
-                                        </Border>
-                                        <Border Background="#15ffffff" CornerRadius="8" Padding="15" Margin="0,0,0,10">
-                                            <StackPanel>
-                                                <TextBlock Text="Server Maintenance" FontSize="14" Foreground="#FBBF24" FontWeight="SemiBold"/>
-                                                <TextBlock Text="Weekly maintenance every Tuesday from 6:00 AM to 10:00 AM UTC."
-                                                           FontSize="12" Foreground="#94A3B8" Margin="0,5,0,0" TextWrapping="Wrap"/>
-                                                <TextBlock Text="1 day ago" FontSize="10" Foreground="#6b7280" Margin="0,8,0,0"/>
-                                            </StackPanel>
-                                        </Border>
-                                        <Border Background="#15ffffff" CornerRadius="8" Padding="15" Margin="0,0,0,10">
-                                            <StackPanel>
-                                                <TextBlock Text="New Event: Double XP Weekend!" FontSize="14" Foreground="#10B981" FontWeight="SemiBold"/>
-                                                <TextBlock Text="Earn double experience points this weekend. Don't miss out!"
-                                                           FontSize="12" Foreground="#94A3B8" Margin="0,5,0,0" TextWrapping="Wrap"/>
-                                                <TextBlock Text="3 days ago" FontSize="10" Foreground="#6b7280" Margin="0,8,0,0"/>
-                                            </StackPanel>
-                                        </Border>
-                                    </StackPanel>
-                                </ScrollViewer>
-                            </Grid>
-                        </Border>
                     </Grid>
 
                     <!-- Dashboard Screen -->
@@ -796,9 +750,9 @@
         <!-- Character Image - Bleeds outside the window -->
         <Image Source="assets/Berserker.png"
                HorizontalAlignment="Right" VerticalAlignment="Bottom"
-               Width="550" Margin="0,0,-150,-50"
+               Width="216" Margin="0,0,126,84"
                IsHitTestVisible="False"
-               RenderOptions.BitmapScalingMode="HighQuality">
+               RenderOptions.BitmapScalingMode="HighQuality" Height="302">
             <Image.Effect>
                 <DropShadowEffect Color="#DC2626" BlurRadius="40" ShadowDepth="0" Opacity="0.3"/>
             </Image.Effect>
