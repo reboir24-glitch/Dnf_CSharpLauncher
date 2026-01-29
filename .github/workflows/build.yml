@@ -1,0 +1,36 @@
+name: Build (WPF)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        run: dotnet restore ./DFOLauncher.sln
+
+      - name: Build (Release)
+        run: dotnet build ./DFOLauncher.sln -c Release --no-restore
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DFOLauncher-Release
+          path: |
+            **\bin\Release\**\*.exe
+            **\bin\Release\**\*.dll
+            **\bin\Release\**\*.json
+            **\bin\Release\**\*.config
+          if-no-files-found: error
